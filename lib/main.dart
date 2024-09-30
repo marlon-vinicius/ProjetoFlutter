@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 //import 'package:flutter/widgets.dart';
@@ -7,8 +8,9 @@ void main() => runApp(
       MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(),
-        home: Scaffold(
+        home: const Scaffold(
           body: Dashboard(),
+          backgroundColor: Colors.lightGreen,
         ),
       ),
     );
@@ -25,9 +27,9 @@ class FormularioTransferencia extends StatelessWidget {
         //cololocar cor no texto Transferência
         title: const Text(
           "Criando transferência",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.black),
         ),
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.greenAccent,
       ),
       body:  Column(
         children: [
@@ -42,7 +44,7 @@ class FormularioTransferencia extends StatelessWidget {
               _controllerCampoValor);
           },
           style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(Colors.blue)
+            backgroundColor: WidgetStateProperty.all(Colors.green)
           ),
           child: const Text('Confirmar', style: TextStyle(color: Colors.white,fontSize: 18),
           )
@@ -63,6 +65,75 @@ class FormularioTransferencia extends StatelessWidget {
     }
   }
 }
+
+class FormularioContato extends StatelessWidget {
+  final TextEditingController _controllerCampoNome = TextEditingController();
+  final TextEditingController _controllerCampoEndereco = TextEditingController();
+  final TextEditingController _controllerCampoTelefone = TextEditingController();
+  final TextEditingController _controllerCampoEmail = TextEditingController();
+  final TextEditingController _controllerCampoCpf = TextEditingController();
+
+  FormularioContato({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          "Cadastro de Clientes",
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.greenAccent,
+      ),
+      resizeToAvoidBottomInset: true,
+      body:SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child:
+            Column(
+            children: [
+              EditorContatos(controlador: _controllerCampoNome, rotulo: 'Nome', dica: 'José da Silva'),
+              EditorContatos(controlador: _controllerCampoEndereco, rotulo: 'Endereço',dica: 'Rua A'),
+              EditorContatos(controlador: _controllerCampoTelefone, rotulo: 'Telefone',dica: '(16)98765-4321'),
+              EditorContatos(controlador: _controllerCampoEmail, rotulo: 'E-mail',dica: 'email@gmail.com'),
+              EditorContatos(controlador: _controllerCampoCpf, rotulo: 'CPF',dica: '987.654.321-00'),
+              
+              ElevatedButton(
+              onPressed: (){ 
+                _criarContato(
+                  context,
+                  _controllerCampoNome,
+                  _controllerCampoEndereco,
+                  _controllerCampoTelefone,
+                  _controllerCampoEmail,
+                  _controllerCampoCpf);
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(Colors.green)
+              ),
+              child: const Text('Confirmar', style: TextStyle(color: Colors.white,fontSize: 18),
+              )
+              )
+            ],
+          )
+        )
+      )
+    );
+  }
+
+  void _criarContato(BuildContext context,controllerCampoNome, controllerCampoEndereco, controllerCampoTelefone, controllerCampoEmail, controllerCampoCpf) {
+    debugPrint("Clicou em confirmar");
+    final String? nome = _controllerCampoNome.text;
+    final String? endereco = _controllerCampoEndereco.text;
+    final String? telefone = _controllerCampoTelefone.text;
+    final String? email = _controllerCampoEmail.text;
+    final String? cpf = _controllerCampoCpf.text;
+    if(nome != null && endereco != null && telefone != null && email != null && cpf != null) {
+      final contatoCriado = Contato(nome, endereco, telefone, email, cpf);
+      debugPrint('$contatoCriado');
+      Navigator.pop(context, contatoCriado);
+    }
+  }
+}  
 
 class Editor extends StatelessWidget {
 
@@ -91,6 +162,33 @@ class Editor extends StatelessWidget {
   }
 }
 
+class EditorContatos extends StatelessWidget {
+
+  final TextEditingController? controlador;
+  final String? rotulo;
+  final String? dica;
+
+  const EditorContatos({super.key, this.controlador, this.rotulo, this.dica});
+
+  @override
+  Widget build(BuildContext context) {
+    return  Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: controlador ,
+              style: const TextStyle(fontSize: 24.0),
+              decoration: InputDecoration(
+                labelText: rotulo,
+                hintText: dica,
+                hintStyle: const TextStyle(fontSize: 12.0),
+                labelStyle: const TextStyle(color:  Color.fromARGB(255, 0, 133, 4),fontSize: 15.0),
+              ),
+              keyboardType: TextInputType.text,
+            ),
+          );
+  }
+}
+
 class ListaTransferencia extends StatefulWidget {
   
   final List<Transferencia> _transferencias = []; 
@@ -101,6 +199,16 @@ class ListaTransferencia extends StatefulWidget {
   }  
 }
 
+class ListaContatos extends StatefulWidget {
+  
+  final List<Contato> _contatos = []; 
+  
+  @override
+  State<StatefulWidget> createState() {
+   return ListaContatosState();
+  }  
+}
+
 class ListaTransferenciasState extends State<ListaTransferencia> {
 
   @override
@@ -108,12 +216,11 @@ class ListaTransferenciasState extends State<ListaTransferencia> {
 
     return Scaffold(
       appBar: AppBar(
-        //colocar cor no texto Transferência
         title: const Text(
           "Transferência",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.black),
         ),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.greenAccent,
       ),
       body: ListView.builder(
           itemCount: widget._transferencias.length,
@@ -136,11 +243,55 @@ class ListaTransferenciasState extends State<ListaTransferencia> {
           });
 
         },
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.greenAccent,
         child: const Icon(
           Icons.add,
           size: 35,
-          color: Colors.white,
+          color: Colors.black,
+        ),
+      ),
+    );
+  }
+}
+
+class ListaContatosState extends State<ListaContatos> {
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          "Lista de Contatos",
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.greenAccent,
+      ),
+      body: ListView.builder(
+          itemCount: widget._contatos.length,
+          itemBuilder: (context, indice) {
+            final contato = widget._contatos[indice];
+            return ItemContato(contato);
+          }
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          final Future<Contato?> future = Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return FormularioContato();
+          }));
+          future.then((contatoRecebido) {
+            debugPrint('$contatoRecebido');
+            setState(() {
+               widget._contatos.add(contatoRecebido!);
+            });           
+          });
+
+        },
+        backgroundColor: Colors.greenAccent,
+        child: const Icon(
+          Icons.add,
+          size: 35,
+          color: Colors.black,
         ),
       ),
     );
@@ -154,18 +305,37 @@ class ItemTransferencia extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final NumberFormat formatarNumero = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$', decimalDigits: 2);
     return Card(
       child: ListTile(
         leading: const Icon(Icons.monetization_on, color: Colors.green),
-        title: Text(_transferencia.valor.toString()),
+        title: Text(formatarNumero.format(_transferencia.valor)),
         subtitle: Text(_transferencia.numeroConta.toString()),
       ),
     );
   }
 }
 
+class ItemContato extends StatelessWidget {
+  final Contato _contato;
+
+  const ItemContato(this._contato, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        
+        leading: const Icon(Icons.person, color: Colors.black),
+        title: Text('Nome: ${_contato.nome.toString()}', style: const TextStyle(fontWeight: FontWeight.bold),),
+        subtitle: Text('Endereço: ${_contato.endereco.toString()}\nTelefone: ${_contato.telefone.toString()}\nE-mail: ${_contato.email.toString()}\nCPF: ${_contato.cpf.toString()}'),        
+      ),
+    );
+  }
+}
+
 class Transferencia {
-  final double valor; //
+  final double valor;
   final int numeroConta;
 
   Transferencia(this.valor, this.numeroConta);
@@ -176,6 +346,21 @@ class Transferencia {
   }
 }
 
+class Contato {
+  final String nome;
+  final String endereco;
+  final String telefone;
+  final String email;
+  final String cpf;
+
+  Contato(this.nome,this.endereco, this.telefone,this.email,this.cpf);
+
+  @override
+  String toString() {
+    return 'Contato{nome: $nome, endereço: $endereco, telefone: $telefone, email: $email, CPF: $cpf}';
+  }
+}
+
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
      
@@ -183,27 +368,59 @@ class Dashboard extends StatelessWidget {
     Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text(
+          title: const Text(            
             "Dashboard",
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.black,),
           ),
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.greenAccent,
         ),
-        body: GridView.count(
-          // Create a grid with 2 columns. If you change the scrollDirection to
-          // horizontal, this produces 2 rows.
-          scrollDirection: Axis.horizontal,
-          crossAxisCount: 2,
+        body: Column(
           children: <Widget>[
           Container(
             padding: const EdgeInsets.all(8),
-            color: Colors.teal[100],
-            child: const Text("He'd have you all unravel at the"),
+            margin: const EdgeInsets.all(10),
+            width: 150,
+            height: 100,
+            color: Colors.teal,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TextButton(
+                  child: const Icon(Icons.group, color: Colors.black),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ListaContatos()),
+                    );
+                  },
+                ),
+                  const Text("Contatos")
+              ], 
+            ) ,
           ),
           Container(
             padding: const EdgeInsets.all(8),
-            color: Colors.teal[200],
-            child: const Text('Heed not the rabble'),
+            margin: const EdgeInsets.all(10),
+            width: 150,
+            height: 100,
+            color: Colors.teal,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                 TextButton(
+                  child: const Icon(Icons.monetization_on, color: Colors.black),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ListaTransferencia()),
+                    );
+                  },
+                ),
+                  const Text("Transferências")
+              ], 
+            ) ,
           ),
         ],
         )
